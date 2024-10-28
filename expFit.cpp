@@ -42,6 +42,7 @@
 
 using namespace std;
 
+// ---------- GLOBALS ----------
 // Declare pointer to data as global
 // The use of global variables is a disfavored coding practice, but
 // in this case it will allow us to avoid writing more complex code
@@ -51,18 +52,19 @@ TF1 *fparam;
 
 //-------------------------------------------------------------------------
 // The pdf to be fitted, here an exponential.
-// This is a convenient interface to associating the model
+// This is a convenient interface for associating the model
 // with a TF1 later
 double expPdf(double* xPtr, double par[]){        
   double x = *xPtr;
   double A = par[0];         // normalization
   double lam = par[1];       // mean of x
   double f = 0;
-  f = A/fabs(lam) * exp(x/lam); 
+  f = A * exp(x/lam); 
   return f;
 }
 
 //-------------------------------------------------------------------------
+// This is our OBJECTIVE Function
 // return NLL given a histogram and function
 
 double calcNLL(TH1F* h, TF1* f){
@@ -75,7 +77,7 @@ double calcNLL(TH1F* h, TF1* f){
     nll -= n * TMath::Log(mu) - mu  - TMath::LnGamma(n+1);
   }
   // cout << "nll "<< nll <<endl;
-  return 2*nll;   // factor of -2 so minuit gets the errors right
+  return 2*nll;   // factor of 2 so the 1 sigma error contours follow the chi^2 convention
 }
 
 
@@ -83,10 +85,12 @@ double calcNLL(TH1F* h, TF1* f){
 // Minuit fcn: calculates value of the function to be minimized using
 // the data and the model function
 // This is the interface used to define our objective function.  We use
-// only a sub set of the input parameters below.
+// only a subset of the input parameters below.
 // npar: number of parameters
-// par: array of aprameter values
+// par: array of parameter values
 // f: the value of the objective function
+// Minuit can also pass the gradient(deriv) of the objective function wrt the
+// current parameters or flags that we can trigger special opetations (eg perform some initialization)
 
 void fcn(int& npar, double* deriv, double& f, double par[], int flag){
 
@@ -119,7 +123,7 @@ int main(int argc, char **argv) {
   canvas->UseCurrentStyle();
   gROOT->ForceStyle();
 
-  gStyle->SetOptStat(0);
+  //gStyle->SetOptStat(0);
   gStyle->SetTitleBorderSize(0);
   gStyle->SetTitleSize(0.04);
   gStyle->SetTitleFont(42, "hxy");      // for histogram and axis titles
@@ -134,12 +138,13 @@ int main(int argc, char **argv) {
   // create a histogram and fill it w/ randomly distributed data
   // based on an exponential PDF
   double xmin = 0.0;
-  double xmax = 5.0;
+  double xmax = 4.0;
+  double lambda = 3.14159;
   int nentries = 1000;
-  TH1F *hexp=new TH1F("hexp","exponential distribution;x;# events",100,xmin,xmax);
+  TH1F *hexp=new TH1F("hexp","exponential distribution;x;# events",50,xmin,xmax);
 
   for (int i=0; i<nentries; i++){
-    hexp->Fill(r.Exp(3.14159));
+    hexp->Fill(r.Exp(lambda));  // generate random exponential distribution
   }
   
   
@@ -158,7 +163,7 @@ int main(int argc, char **argv) {
   double maxVal[npar];            
   TString parName[npar];          // Optional names for nicer output!
 
-  // Initial parametes MUST be set by some means to get things started
+  // Initial parameters MUST be set by some means to get things started
   par[0] = hexp->GetMaximum();       // guesses for starting the fit
   par[1] = -2;                      
   stepSize[0] = TMath::Abs(par[0]*0.1);   // usually 10% of initial guess is OK for starting step size, YMMV
@@ -178,7 +183,7 @@ int main(int argc, char **argv) {
   }
 
   // here we define the pointers to pass information to Minuit's fcn
-  // not pretty, but sinple
+  // not pretty, but simple
   hdata=hexp;     // histogram to fit
   fparam=myfunc;  // our model
 
@@ -193,9 +198,9 @@ int main(int argc, char **argv) {
   // run a minos error analysis
   // this perfoms a brute force scan around the minimum of the objective function
   // to better estimates of the errors on the fit parameters
-  gMinuit->mnmnos();
+  // gMinuit->mnmnos();
 
-  // store the fit parameters in out TF1, decorate our function
+  // store the fit parameters in our TF1, decorate our function
   myfunc->SetParameters(outpar);
 
   myfunc->SetLineStyle(1);             //  1 = solid, 2 = dashed, 3 = dotted
@@ -209,7 +214,17 @@ int main(int argc, char **argv) {
   hdata->Draw("e");
   myfunc->Draw("same");
 
-
+  // summarize the fitting results
+  cout << "\n==========================\n"<<endl;
+  double fmin, fedm, errdef;
+  int npari, nparx, istat;  //see https://root.cern/doc/master/classTMinuit.html 
+  minuit.mnstat(fmin, fedm, errdef, npari, nparx, istat);
+  cout << "minimum of NLL = " << fmin << endl;
+  cout << "fit status = " << istat << endl;
+  cout << "best fit parameters\n" <<endl;
+  for (int i=0; i<npar; ++i){
+    cout << i << " : " << outpar[i] << " +- " << err[i] << endl;
+  }
 
   cout << "\nTo exit, quit ROOT from the File menu of the plot (or use control-C)" << endl;
   theApp.SetIdleTimer(30,".q");  // set up a failsafe timer to end the program

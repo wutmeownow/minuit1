@@ -32,6 +32,7 @@ int main(int argc, char **argv) {
   // optional:  here all the "root stuff" is put into its own function
   // this allows us to either compile the program in C++ as a stand alone
   // exe or to use the function in ROOT directly, eg.  root -l rootExample.cpp
+  // If we build a shared library, we can call the function from Python as well
   rootExample();
 
   
@@ -41,6 +42,7 @@ int main(int argc, char **argv) {
   return 0;
 }
 
+// here we create and display two histograms filled wit hrandom data
 void rootExample(){
   TCanvas* canvas = new TCanvas();
   prettyPlot(canvas);
