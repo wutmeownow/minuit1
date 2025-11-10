@@ -81,6 +81,26 @@ double calcNLL(TH1F* h, TF1* f){
 }
 
 
+// return chi2 given a histogram and function
+
+double calcchi2(TH1F* h, TF1* f){
+  double chi2=0;
+  for (int i=1; i<=h->GetNbinsX(); i++){
+    double x=h->GetBinCenter(i); // bin center
+    int n=(int)(h->GetBinContent(i)); // y bin
+    double mu=f->Eval(x); // expected y bin
+    double err=h->GetBinError(i); // bin error
+
+    if (err==0) continue; // avoid division by zero
+
+    double diff = mu-n;
+    chi2 += diff*diff/(err*err);
+  }
+
+  return chi2;   
+}
+
+
 //-------------------------------------------------------------------------
 // Minuit fcn: calculates value of the function to be minimized using
 // the data and the model function
@@ -98,7 +118,8 @@ void fcn(int& npar, double* deriv, double& f, double par[], int flag){
     fparam->SetParameter(i,par[i]);
   }
 
-  f = calcNLL(hdata,fparam);
+  // f = calcNLL(hdata,fparam);
+  f = calcchi2(hdata,fparam);
  
 }
 
@@ -222,7 +243,8 @@ int main(int argc, char **argv) {
   double fmin, fedm, errdef;
   int npari, nparx, istat;  // see https://root.cern/doc/master/classTMinuit.html 
   minuit.mnstat(fmin, fedm, errdef, npari, nparx, istat);
-  cout << "minimum of NLL = " << fmin << endl;
+  // cout << "minimum of NLL = " << fmin << endl;
+  cout << "minimum of chi sqr = " << fmin << endl;
   cout << "fit status = " << istat << endl;
   cout << "best fit parameters\n" <<endl;
   for (int i=0; i<npar; ++i){
