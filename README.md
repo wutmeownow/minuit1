@@ -8,10 +8,15 @@
 
 -----
 
-Team member names and computing IDs: AAA(aaa) BBB(bbb)
+Team member names and computing IDs: Michael Lowry (mjl9ka)
 
 -----
 
+Exercise 1 comments:
+--
+The best fit of the Gumbel distribution has a smaller reduced chi square of 2.66 vs the 2.75 of the double gaussian fit. The p-value of the gumbel distribution fit is 1.5e-16 and 3.2e-17 for the double gaussian fit. The Gumbel distribution is favored over the double gaussian model.
+
+-----
 Exercise 2 comments:
 --
 
