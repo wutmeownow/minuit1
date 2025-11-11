@@ -19,7 +19,7 @@ The best fit of the Gumbel distribution has a smaller reduced chi square of 2.66
 -----
 Exercise 2 comments:
 --
-
+I extracted the mean and sigma of the signal as 74.6 ± 0.5 and 4.60 ± 0.44. Both agree with the true values within one sigma. The number of degrees of freedom should be 2*50 bins - 8 parameters = 92, which results in a reduced chi squared of 0.83 and a chi squared probability of 0.88. I think this is a good fit to the data since the signal parameters agree with the true values and the chi squared probability is quite large. Since it is so large the fit may be a little too good and overfitting.
 
 -----
 

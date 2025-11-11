@@ -271,12 +271,13 @@ int main(int argc, char **argv) {
     cout << i << " : " << outpar[i] << " +- " << err[i] << endl;
   }
 
-  // int ndof = dist1->GetNbinsX()-npar;
-  // double redChiSqr = fmin/ndof;
-  // double p = TMath::Prob(fmin, ndof);
-  // cout << "degrees of freedom = " << ndof << endl;
-  // cout << "reduced chi sqr = " << redChiSqr << endl;
-  // cout << "p value = " << p << endl;
+  
+  int ndof = (hexp2->GetNbinsX()+hexp1->GetNbinsX())-npar; // combined dof
+  double redChiSqr = fmin/ndof;
+  double p = TMath::Prob(fmin, ndof);
+  cout << "degrees of freedom = " << ndof << endl;
+  cout << "reduced chi sqr = " << redChiSqr << endl;
+  cout << "p value = " << p << endl;
 
 
   
