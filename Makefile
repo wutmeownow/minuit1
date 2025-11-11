@@ -15,7 +15,10 @@ ROOTLINK=-L$(ROOTLIBDIR) $(ROOTLIBS) $(ROOTLDFLAGS)
 
 CPP=g++
 
-default: expFit rootExample dist1Fit
+default: expFit rootExample dist1Fit simulExpsFit
+
+simulExpsFit: simulExpsFit.cpp
+	$(CPP) -O -Wall $(ROOTC) -o simulExpsFit simulExpsFit.cpp $(ROOTLINK) 
 
 dist1Fit: dist1Fit.cpp
 	$(CPP) -O -Wall $(ROOTC) -o dist1Fit dist1Fit.cpp $(ROOTLINK) 
