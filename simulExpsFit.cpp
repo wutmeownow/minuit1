@@ -26,7 +26,8 @@ using namespace std;
 TH1F *hdata1;
 TH1F *hdata2;
 // also passing the fit function, to make the objective fcn more generic
-TF1 *fparam;
+TF1 *fparam1;
+TF1 *fparam2;
 
 //-------------------------------------------------------------------------
 // gaussian plus exponentially falling background
@@ -107,11 +108,12 @@ double calcchi2(TH1F* h, TF1* f){
 void fcn(int& npar, double* deriv, double& f, double par[], int flag){
   // calculate chi2 for both graphs
   for (int i=0; i<npar; i++){
-    fparam->SetParameter(i,par[i]);
+    fparam1->SetParameter(i,par[i]);
+    fparam2->SetParameter(i,par[i]);
   }
 
   // f = calcNLL(hdata,fparam);
-  f = calcchi2(hdata1,fparam);
+  f = calcchi2(hdata1,fparam1)+calcchi2(hdata2,fparam2);
  
 }
 
@@ -171,80 +173,82 @@ int main(int argc, char **argv) {
   TString parName[npar];          // Optional names for nicer output!
 
   // Initial parameters MUST be set by some means to get things started
-  par[0] = 0.9*hexp1->GetMaximum(); // A1
-  par[1] = 80; // mu
+  par[0] = 40; // A1
+  par[1] = 75; // mu
   par[2] = 5; // sigma
-  par[3] = 0.9*hexp1->GetMaximum();  // Abkg1
-  par[4] = 1; // lambda
-  par[5] = 0.9*hexp2->GetMaximum(); // A2
-  par[6] = 0.9*hexp2->GetMaximum(); // Abkg2
-  par[7] = -1; // n
+  par[3] = 1550;  // Abkg1
+  par[4] = 15; // lambda
+  par[5] = 20; // A2
+  par[6] = 250000; // Abkg2
+  par[7] = -2; // n
 
-  // stepSize[0] = TMath::Abs(par[0]*0.1);   // usually 10% of initial guess is OK for starting step size, YMMV
-  // stepSize[1] = TMath::Abs(par[1]*0.1);   // step sizes MUST be positive!
-  // stepSize[2] = TMath::Abs(par[2]*0.1);
-  // stepSize[3] = TMath::Abs(par[3]*0.1);
-  // stepSize[4] = TMath::Abs(par[4]*0.1);
-  // stepSize[5] = TMath::Abs(par[5]*0.1);
-  // stepSize[6] = TMath::Abs(par[6]*0.1);
-  // stepSize[7] = TMath::Abs(par[7]*0.1);
+  stepSize[0] = TMath::Abs(par[0]*0.1);   // usually 10% of initial guess is OK for starting step size, YMMV
+  stepSize[1] = TMath::Abs(par[1]*0.1);   // step sizes MUST be positive!
+  stepSize[2] = TMath::Abs(par[2]*0.1);
+  stepSize[3] = TMath::Abs(par[3]*0.1);
+  stepSize[4] = TMath::Abs(par[4]*0.1);
+  stepSize[5] = TMath::Abs(par[5]*0.1);
+  stepSize[6] = TMath::Abs(par[6]*0.1);
+  stepSize[7] = TMath::Abs(par[7]*0.1);
 
-  // minVal[0] = 0;      // if min and max values = 0, parameter is unbounded.
-  // maxVal[0] = 0;
-  // minVal[1] = 0; 
-  // maxVal[1] = 0;
-  // minVal[2] = 0; 
-  // maxVal[2] = 0;
-  // minVal[3] = 0; 
-  // maxVal[3] = 0;
-  // minVal[4] = 0; 
-  // maxVal[4] = 0;
-  // minVal[5] = 0; 
-  // maxVal[5] = 0;
-  // minVal[6] = 0; 
-  // maxVal[6] = 0;
-  // minVal[7] = 0; 
-  // maxVal[7] = 0;
+  minVal[0] = 10;      // if min and max values = 0, parameter is unbounded.
+  maxVal[0] = 70;
+  minVal[1] = 70; 
+  maxVal[1] = 80;
+  minVal[2] = 0; 
+  maxVal[2] = 10;
+  minVal[3] = 0; 
+  maxVal[3] = 0;
+  minVal[4] = 5; 
+  maxVal[4] = 30;
+  minVal[5] = 10; 
+  maxVal[5] = 50;
+  minVal[6] = 0; 
+  maxVal[6] = 0;
+  minVal[7] = -3; 
+  maxVal[7] = 0;
 
-  // parName[0] = "A1";       // let's give our fit parameters useful names
-  // parName[1] = "mu";
-  // parName[2] = "sigma";       
-  // parName[3] = "Abkg1";
-  // parName[4] = "lambda";       
-  // parName[5] = "A2";
-  // parName[6] = "Abkg2";
-  // parName[7] = "n";
+  parName[0] = "A1";       // let's give our fit parameters useful names
+  parName[1] = "mu";
+  parName[2] = "sigma";       
+  parName[3] = "Abkg1";
+  parName[4] = "lambda";       
+  parName[5] = "A2";
+  parName[6] = "Abkg2";
+  parName[7] = "n";
 
-  // // initialize the parameters
-  // for (int i=0; i<npar; i++){
-  //   minuit.DefineParameter(i, parName[i].Data(), 
-	// 		   par[i], stepSize[i], minVal[i], maxVal[i]);
-  // }
+  // initialize the parameters
+  for (int i=0; i<npar; i++){
+    minuit.DefineParameter(i, parName[i].Data(), 
+			   par[i], stepSize[i], minVal[i], maxVal[i]);
+  }
 
-  // // here we define the pointers to pass information to Minuit's fcn to calculate the
-  // // objective function
-  // // note: the use of global variables is discouraged in general, but for these
-  // // examples we'll let convenience and code simplicity outweigh the programming
-  // // style considerations.
-  // hdata=dist1;     // histogram to fit
-  // fparam=myfunc;  // our model
+  // here we define the pointers to pass information to Minuit's fcn to calculate the
+  // objective function
+  // note: the use of global variables is discouraged in general, but for these
+  // examples we'll let convenience and code simplicity outweigh the programming
+  // style considerations.
+  hdata1=hexp1;     // histogram to fit
+  fparam1=expbkg;  // our model
+  hdata2=hexp2;
+  fparam2=powbkg;
 
-  // // Do the minimization!
-  // minuit.Migrad();       // Minuit's best minimization algorithm
+  // Do the minimization!
+  minuit.Migrad();       // Minuit's best minimization algorithm
 
-  // // Get the result
-  // double outpar[npar], err[npar];
-  // for (int i=0; i<npar; i++){
-  //   minuit.GetParameter(i,outpar[i],err[i]);
-  // }
+  // Get the result
+  double outpar[npar], err[npar];
+  for (int i=0; i<npar; i++){
+    minuit.GetParameter(i,outpar[i],err[i]);
+  }
   // // run a minos error analysis
   // // this perfoms a brute force scan around the minimum of the objective function
   // // to get better estimates of the errors on the fit parameters
   // // gMinuit->mnmnos();
 
   // store the fit parameters in our TF1, decorate our function
-  expbkg->SetParameters(par);
-  powbkg->SetParameters(par);
+  expbkg->SetParameters(outpar);
+  powbkg->SetParameters(outpar);
 
   // myfunc->SetLineStyle(1);             //  1 = solid, 2 = dashed, 3 = dotted
   // // myfunc->SetLineColor(1);             //  black (default)
@@ -253,19 +257,19 @@ int main(int argc, char **argv) {
   // myfunc->GetXaxis()->SetTitle("x");
   // myfunc->GetYaxis()->SetTitle("Double Gaussian");
 
-  // // summarize the fitting results
-  // cout << "\n==========================\n"<<endl;
-  // cout << "Results of Double Gaussian"<< endl;
-  // double fmin, fedm, errdef;
-  // int npari, nparx, istat;  // see https://root.cern/doc/master/classTMinuit.html 
-  // minuit.mnstat(fmin, fedm, errdef, npari, nparx, istat);
-  // // cout << "minimum of NLL = " << fmin << endl;
-  // cout << "minimum of chi sqr = " << fmin << endl;
-  // cout << "fit status = " << istat << endl;
-  // cout << "best fit parameters\n" <<endl;
-  // for (int i=0; i<npar; ++i){
-  //   cout << i << " : " << outpar[i] << " +- " << err[i] << endl;
-  // }
+  // summarize the fitting results
+  cout << "\n==========================\n"<<endl;
+  cout << "Results of double histogram chi sqr minimization"<< endl;
+  double fmin, fedm, errdef;
+  int npari, nparx, istat;  // see https://root.cern/doc/master/classTMinuit.html 
+  minuit.mnstat(fmin, fedm, errdef, npari, nparx, istat);
+  // cout << "minimum of NLL = " << fmin << endl;
+  cout << "minimum of chi sqr = " << fmin << endl;
+  cout << "fit status = " << istat << endl;
+  cout << "best fit parameters\n" <<endl;
+  for (int i=0; i<npar; ++i){
+    cout << i << " : " << outpar[i] << " +- " << err[i] << endl;
+  }
 
   // int ndof = dist1->GetNbinsX()-npar;
   // double redChiSqr = fmin/ndof;
