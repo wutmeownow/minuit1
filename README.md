@@ -26,15 +26,15 @@ I extracted the mean and sigma of the signal as 74.6 ± 0.5 and 4.60 ± 0.44. Bo
 Exercise 3 comments:
 --
 Best fit parameters and uncertainties:
-A      : 53.9973 +- 0.508397
-mux    : 3.51647 +- 0.00543451
-sigmax : 0.698328 +- 0.00484579
-muy    : 1.90636 +- 0.015083
-sigmay : 1.37966 +- 0.0124921
-Abkg   : 0.246314 +- 0.00228712
+- A      : 53.9973 +- 0.508397
+- mux    : 3.51647 +- 0.00543451
+- sigmax : 0.698328 +- 0.00484579
+- muy    : 1.90636 +- 0.015083
+- sigmay : 1.37966 +- 0.0124921
+- Abkg   : 0.246314 +- 0.00228712
 
-Reduced chi sqr = 1.12
-p value = 4.29e-07
+- Reduced chi sqr = 1.12
+- p value = 4.29e-07
 
 Note: For the lego plot for data minus fitted background, I set negative bins to zero to more easily compare to the data histogram.
 
