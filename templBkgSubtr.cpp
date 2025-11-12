@@ -140,7 +140,7 @@ int main(int argc, char **argv) {
   canvas->UseCurrentStyle();
   gROOT->ForceStyle();
 
-  //gStyle->SetOptStat(0);
+  gStyle->SetOptStat(0);
   gStyle->SetTitleBorderSize(0);
   gStyle->SetTitleSize(0.04);
   gStyle->SetTitleFont(42, "hxy");      // for histogram and axis titles
@@ -296,16 +296,30 @@ int main(int argc, char **argv) {
   // TH2F for signal minus background
   TH2F *hsig = new TH2F("hsig", "data minus background;;;", nbinsx, 0, 6, nbinsy, 0, 6);
 
-  // Fill histogram with residuals (data-fit)
+  // Fill histogram with signal minus background fit
+  int nSig = 0;
+  double nSigErr = 0;
   for (int i = 1; i <= hsig->GetNbinsX(); i++) {
+
       for (int j = 1; j <= hsig->GetNbinsY(); j++) {
-          double x = hsig->GetXaxis()->GetBinCenter(i);
-          double y = hsig->GetYaxis()->GetBinCenter(j);
-          double z = hdata->GetBinContent(hdata->FindBin(x,y)) - outpar[5]* hbkg->GetBinContent(hbkg->FindBin(x,y));
-          if (z<0) z=0; // remove negative bins
-          hsig->SetBinContent(i, j, z);
+        double x = hsig->GetXaxis()->GetBinCenter(i);
+        double y = hsig->GetYaxis()->GetBinCenter(j);
+        double bkgVal = hbkg->GetBinContent(hbkg->FindBin(x,y));
+        double dataVal = hdata->GetBinContent(hdata->FindBin(x,y));
+        double z = dataVal - outpar[5]* bkgVal;
+
+        nSig += z;
+        nSigErr += dataVal + TMath::Power(bkgVal*err[5], 2); // error of each bin will be sqrt(sum of error in data bin sqrd and error in bkg fit sqrd) -> error in total counts will be sqrt the sum of these sqrd
+
+        if (z<0) z=0; // remove negative bins for plotting histogram
+        hsig->SetBinContent(i, j, z);
       }
   }
+
+  nSigErr = TMath::Power(nSigErr, 0.5);
+
+  cout << "signal count = " << nSig << endl;
+  cout << "signal count error = " << nSigErr << endl;
 
   // plot
 

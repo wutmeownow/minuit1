@@ -144,7 +144,7 @@ int main(int argc, char **argv) {
   canvas->UseCurrentStyle();
   gROOT->ForceStyle();
 
-  //gStyle->SetOptStat(0);
+  gStyle->SetOptStat(0);
   gStyle->SetTitleBorderSize(0);
   gStyle->SetTitleSize(0.04);
   gStyle->SetTitleFont(42, "hxy");      // for histogram and axis titles

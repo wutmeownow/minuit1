@@ -25,6 +25,18 @@ I extracted the mean and sigma of the signal as 74.6 ± 0.5 and 4.60 ± 0.44. Bo
 
 Exercise 3 comments:
 --
+Best fit parameters and uncertainties:
+A      : 53.9973 +- 0.508397
+mux    : 3.51647 +- 0.00543451
+sigmax : 0.698328 +- 0.00484579
+muy    : 1.90636 +- 0.015083
+sigmay : 1.37966 +- 0.0124921
+Abkg   : 0.246314 +- 0.00228712
 
+Reduced chi sqr = 1.12
+p value = 4.29e-07
 
+Note: For the lego plot for data minus fitted background, I set negative bins to zero to more easily compare to the data histogram.
+
+I estimated the signal count as 32100 ± 200 by summing all the bins (including negative ones) in the histogram of data minus the fitted background. My rational is that while some bins may overcount the number of signal events, the bins that are negative will lead to an overall cancellation of these false signal counts. To find the error I used error propagation on the number of counts in each bin and then summed these in quadrature and took the square root. The error of the count in each bin in the final histogram should be the sqrt of the quadrature sum of root(N) of the data histogram bin and the error in the Abkg fitted parameter scaled by the value of the background model at that bin center.
 -----
